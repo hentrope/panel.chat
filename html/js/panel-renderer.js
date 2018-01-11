@@ -34,6 +34,10 @@ var viewport = {
 				txt = "can be used to zoom in and out.";
 				width = Math.min(ctx.measureText(txt).width);
 				ctx.fillText(txt, 500 - width / 2 , 450);
+				
+				txt = "Zoom in on a panel to chat!";
+				width = Math.min(ctx.measureText(txt).width);
+				ctx.fillText(txt, 500 - width / 2 , 500);
 			} else {
 				var txt = "(" + x + ", " + -y + ")";
 				var width = Math.min(ctx.measureText(txt).width);
