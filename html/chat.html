@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>panel.chat</title>
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+	<link href="css/bootstrap.colorpickersliders.css" rel="stylesheet" type="text/css" media="all">
+	<link rel="stylesheet" href="css/app-style.css">
+	<link rel="stylesheet" href="css/sidebar-style.css">
+	
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/0.11.1/tinycolor.min.js"></script>
+	<script src="js/bootstrap.colorpickersliders.js"></script>
+	<script src="js/cookies.js"></script>
+	<script src="js/debounce.js"></script>
+</head>
+<body>
+	<div id="app-container">
+		<div id="app-body" >
+			<div id="canvas-container">
+				<div id="positioner"></div>
+				<canvas id="panel-canvas" width="1000" height="600"></canvas>
+			</div>
+
+			<form name="message" autocomplete="on">
+			<div id="message-bar" class="clearfix bg-primary">
+				<div class="input-group pull-left">
+					<input id="message-input" name="text" type="text" class="form-control bold" maxlength="140" autocomplete="off">
+					<span class="input-group-btn">
+						<button class="btn btn-primary" id="message-button" type="button">Send</button>
+					</span>
+				</div>
+
+				<input type="hidden" id="message-color" name="color" data-color-format="hex">
+
+				<div id="message-bar-buttons" class="btn-group" data-toggle="buttons">
+					<label class="btn btn-default">
+						<input name="bold" type="checkbox"> <strong>B</strong>
+					</label>
+
+					<label class="btn btn-default">
+						<input name="italic" type="checkbox"> <em>I</em>
+					</label>
+
+					<label class="btn btn-default">
+						<input name="underline" type="checkbox"> <u>U</u>
+					</label>
+
+					<button id="message-color-button" type="button" class="btn btn-default">
+						<span class="color-preview"></span>
+					</button>
+				</div>
+			</div>
+			</form>
+		</div>
+
+
+		<div id="app-sidebar-outer">
+			<div id="app-sidebar-inner">
+
+				<div class="dropdown">
+					<a href="#" id="user-button" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<span class="glyphicon glyphicon-user"></span> <span id="user-display">user</span> <span class="caret"></span>
+					</a>
+
+					<ul id="user-menu" class="dropdown-menu pull-right" aria-labelledby="user-button">
+						<!--li role="separator" class="divider"></li-->
+						<li><a href="#" id="logout"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
+					</ul>
+				</div>
+				
+				<!-- User List -->
+				<div id="userlist-outer">
+					<div id="userlist"></div>
+				</div>
+				
+				<!-- Jump Bar -->
+				<div id="jump-bar" class="input-group">
+					<span class="input-group-addon">x</span>
+				
+					<input id="jump-xpos" type="text" class="form-control" onclick="this.focus();this.select()">
+					
+					<span class="input-group-addon">y</span>
+					
+					<input id="jump-ypos" type="text" class="form-control" onclick="this.focus();this.select()">
+
+					<span class="input-group-btn">
+						<button id="jump-button" type="button" class="btn btn-default">Jump</button>
+					</span>
+				
+				</div>
+
+			</div>
+		</div>
+
+		<div id="app-toggle">
+			<button type="button" id="app-toggle-button" class="btn btn-primary">
+				<span class="glyphicon glyphicon-triangle-left"></span>
+				<span class="glyphicon glyphicon-triangle-right"></span>
+			</button>
+		</div>
+	</div>
+
+	<div class="modal fade" id="user-modal" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static" data-show="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<ul class="nav nav-tabs" role="tablist">
+					<li role="presentation" class="active"><a href="#login" aria-controls="log in" role="tab" data-toggle="tab">Log in</a></li>
+					<li role="presentation"><a href="#register" aria-controls="register" role="tab" data-toggle="tab">Register</a></li>
+				</ul>
+
+				<div class="tab-content">
+					<div id="login" class="tab-pane active">
+					<form name="login-form">
+
+						<div class="modal-body user-form">
+							<div class="form-group">
+								<label for="username">Username:</label>
+								<input type="text" name="username" class="form-control" placeholder="Enter Username" maxlength="20" required/>
+							</div>
+
+							<div class="form-group">
+								<label for="password">Password:</label>
+								<input type="password" name="userpass" class="form-control" placeholder="Enter Password" maxlength="50" required/>
+							</div>
+
+							<div class="checkbox">
+								<label>
+								<input type="checkbox" name="remember" checked="checked">
+								Remember me
+								</label>
+							</div>
+							
+							<div id="login-error-msg" class="text-center text-danger"></div>
+						</div>
+
+						<div class="modal-footer">
+							<button type="button" name="login" id="login-button" class="btn btn-success">Login</button>
+						</div>
+
+					</form>
+					</div>
+
+					<div id="register" class="tab-pane">
+					<form name="register-form">
+
+						<div class="modal-body user-form">
+							<div class="form-group">
+								<label for="username">Username:</label>
+								<input type="text" name="username" class="form-control" placeholder="Enter Username" maxlength="20" required/>
+							</div>
+
+							<div class="form-group">
+								<label for="password">Password:</label>
+								<input type="password" name="userpass" class="form-control" placeholder="Enter Password" maxlength="50" required/>
+							</div>
+
+							<div class="form-group">
+								<label for="confirm-pass">Verify Password:</label>
+								<input type="password" name="confirm-pass" class="form-control" placeholder="Re-enter Password" maxlength="50" required/>
+							</div>
+							
+							<div id="register-error-msg" class="text-center text-danger"></div>
+							<div id="register-success-msg" class="text-center text-success"></div>
+						</div>
+
+						<div class="modal-footer">
+							<button type="button" name="register" id="register-button" class="btn btn-success">Register</button>
+						</div>
+
+					</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>$('#user-modal').modal()</script>
+
+	<script src="js/globals.js"></script>
+	<script src="js/panels.js"></script>
+	<script src="js/view.js"></script>
+	<script src="js/mouse.js"></script>
+	<script src="js/panel-renderer.js"></script>
+	<script src="js/popover.js"></script>
+	<script src="js/userlist.js"></script>
+	<script src="js/socket.js"></script>
+	<script src="js/sidebar.js"></script>
+
+	<script src="js/user-form.js"></script>
+	<script src="js/message-form.js"></script>
+	<script src="js/colorpicker-handler.js"></script>
+	
+	<!--script src="js/offline.js"></script-->
+</body>
+</html>
